@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>electron.js+mysql示例, by tc, 2019-12-02</title>
+    <link rel="stylesheet" type="text/css" href="./libs/element-ui.v2.4.9/theme-chalk/index.css">
+    <style>
+        .el-header, .el-footer {
+          background-color: #B3C0D1;
+          color: #333;
+          text-align: center;
+        }
+        body,html,#app{
+          height:100%;
+          margin:0;
+        }
+
+        .el-container{
+          height:100%;
+        }
+        .el-header{
+          padding:0;
+        }
+        
+        .el-aside {
+          background-color: #D3DCE6;
+          color: #333;
+        }
+        
+        .el-main {
+          /*background-color: #E9EEF3;*/
+          color: #333;
+          text-align: center;
+        }
+        .el-menu-main{
+          background-color:#B3C0D1;
+        }
+      </style>
+  </head>
+  <body>
+    <div id="app">
+      <el-container direction="vertical">
+        <el-header height="60px">
+          <el-menu :default-active="activeIndex" class="el-menu-main" mode="horizontal" background-color="#545c64"
+            text-color="#fff" active-text-color="#ffd04b" @select="handleSelect">
+            <template v-for="item in menus">
+              <template v-if="item.children.length==0">
+                <el-menu-item :index="'mi'+item.id" :key="item.id">{{item.title}}</el-menu-item>
+              </template>
+              <template v-else>
+                <el-submenu v-if="item.children.length>0" :index="'mi'+item.id" :key="item.id">
+                  <template slot="title">{{item.title}}</template>
+                  <el-menu-item v-for="subitem in item.children" :key="subitem.id" :index="'mi'+subitem.id">{{subitem.title}}</el-menu-item>
+                </el-submenu>
+              </template>
+            </template>
+          </el-menu>
+        </el-header>
+        <el-main>
+          <el-table :data="items" stripe border style="width: 100%">
+            <el-table-column prop="id" label="代码" width="60"> </el-table-column>
+            <el-table-column prop="name" label="姓名"> </el-table-column>
+            <el-table-column label="操作" align="center" width="160">
+              <template slot-scope="scope">
+                <el-button size="mini" @click="deleteData(scope.$index, scope.row)">删除</el-button>
+                <el-button size="mini" @click="showData(scope.$index, scope.row)">查看</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-main>
+        <el-footer height="40px">
+          <h5>
+            eletron.js + element-ui + mysql使用示例, by tc, 2019-12-2.
+            Node.js: {{versions.node}}, Chromium: {{versions.chrome}}, Electron: {{versions.electron}}.
+          </h5>
+        </el-footer>
+      </el-container>
+    
+    
+    
+      <el-dialog :visible.sync="visible" title="详细信息">
+        <p>代码：{{curRow.id}}</p>
+        <p>姓名：{{curRow.name}}</p>
+      </el-dialog>
+    
+    </div><!--end of app-->
+    
+    <script type="text/javascript" src="./libs/vue.js"></script>
+
+	  <!-- 引入组件库 -->
+	  <script src="./libs/element-ui.v2.4.9/index.js"></script>
+    <script type="text/javascript">
+      // Vue实例化
+      var doit = new Vue({
+        el:'#app',
+        data: function(){
+          return {
+            items:[{id:1,name:'name'}],//用于展示的测试数据
+            menus:[],
+            visible:false,
+            curRow:{},
+            activeIndex:"1",
+            versions:process.versions,
+            service:require('./dbservice.js')
+          };
+        },
+        created:function(){
+          this.loadMenuData();
+          this.loadTableData();
+        },
+        methods: {
+          showData: function(index,row){
+            this.curRow=row;
+            this.visible=true;
+          },
+          loadMenuData:function(){
+            var self = this;
+            //var db = require('./db');
+            self.service.selectNavMenus(function(err,rows){
+              if(err){
+                console.error(err);
+              }
+              else{
+                var len = rows.length;
+                self.menus = [];
+                for(var i=0; i<len; i++ ){
+                  self.menus.push(rows[i]);
+                }
+                if(len>0){
+                  if(self.menus[0].children.length==0){
+                    self.activeIndex="mi"+self.menus[0].id;
+                  }
+                  else{
+                    self.activeIndex = "mi"+self.menus[0].children[0].id;
+                  }
+                  console.log("设置当前菜单："+self.activeIndex);
+                }
+              }
+            });
+
+          },
+          loadTableData: function(){
+            var self = this;
+            //var db = require('./db');
+            self.service.selectTestData(function(err,rows){
+              if(err){
+                console.error(err);
+              }
+              else{
+                var len = rows.length;
+                self.items = [];
+                for(var i=0; i<len; i++ ){
+                  self.items.push({id:rows[i].id,name:rows[i].name});
+                }
+              }
+            });
+
+          },
+          handleSelect: function(key,keypath){
+            alert("key="+key+", keypath="+keypath);
+          },
+          deleteData:function(index,row){
+            var self = this;
+            this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                callback:function(action){
+                  if(action==='confirm'){
+                    //alert('删除');
+                    self.db.query("delete from t_test where id=?",[row.id],function(err,rows){
+                      if(!err){
+                        self.items.splice(index,1);
+                      }
+                    });
+                  }
+                }
+              });
+          }//end of function
+        }	//end of methods		
+      });
+   
+    </script>
+  </body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>electron.js+mysql示例, by wallimn, 2019-02-05</title>
+    <link rel="stylesheet" type="text/css" href="./libs/element-ui.v2.4.9/theme-chalk/index.css">
+    <style>
+        body,html,#app{
+          height:100%;
+          margin:0;
+        }
+      </style>
+  </head>
+  <body>
+    <div id="app">
+      <el-menu :default-active="activeIndex" class="el-menu-main" mode="horizontal" background-color="#545c64" text-color="#fff"
+        active-text-color="#ffd04b" @select="handleSelect">
+        <template v-for="item in menus">
+          <template v-if="item.children.length==0">
+            <el-menu-item :index="'mi'+item.id" :key="item.id">{{item.title}}</el-menu-item>
+          </template>
+          <template v-else>
+            <el-submenu v-if="item.children.length>0" :index="'mi'+item.id" :key="item.id">
+              <template slot="title">{{item.title}}</template>
+              <el-menu-item v-for="subitem in item.children" :key="subitem.id" :index="'mi'+subitem.id">{{subitem.title}}</el-menu-item>
+            </el-submenu>
+          </template>
+        </template>
+      </el-menu>
+    </div>
+    
+    <script type="text/javascript" src="./libs/vue.js"></script>
+
+	  <!-- 引入组件库 -->
+	  <script src="./libs/element-ui.v2.4.9/index.js"></script>
+    <script type="text/javascript">
+      // Vue实例化
+      var doit = new Vue({
+        el:'#app',
+        data: function(){
+          return {
+            menus:[],
+            activeIndex:"1",
+            service:require('./dbservice.js')
+          };
+        },
+        created:function(){
+          this.loadMenuData();
+        },
+        methods: {
+          loadMenuData:function(){
+            var self = this;
+            //var db = require('./db');
+            self.service.selectNavMenus(function(err,rows){
+              if(err){
+                console.error(err);
+              }
+              else{
+                var len = rows.length;
+                self.menus = [];
+                for(var i=0; i<len; i++ ){
+                  self.menus.push(rows[i]);
+                }
+                if(len>0){
+                  if(self.menus[0].children.length==0){
+                    self.activeIndex="mi"+self.menus[0].id;
+                  }
+                  else{
+                    self.activeIndex = "mi"+self.menus[0].children[0].id;
+                  }
+                  console.log("设置当前菜单："+self.activeIndex);
+                }
+              }
+            });
+
+          }
+        }	//end of methods		
+      });
+   
+    </script>
+  </body>
+</html>
