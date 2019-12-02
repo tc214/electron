@@ -48,7 +48,19 @@
         <li data="张小龙，阮一峰">第三级: 能独立设计和实现产品并且能在市场上获得成功</li>
         <li data="项目主管">第四级: 能领导和带领其他人一同完成更有影响力的工作</li>
         <li data="两年开发经验的工程师">第五级: 能独立解决问题, 完成工程工作</li>
+		<button id="d_button">打开DIALOG</button>
     </ol>
+	
+	<script>
+	var btn = document.getElementById("d_button");
+	const dialog = require('electron').dialog;
+
+	btn.addEventListener('onclick', (e)=>{
+      console.log(dialog.showOpenDialog({ properties: [ 'openFile', 'openDirectory', 'multiSelections' ]}));
+});
+	
+	</script>
+	
 </body>
 
 </html>
