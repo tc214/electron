@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>工程师的五个级别</title>
+</head>
+
+<body>
+    <style>
+    .title {
+        font-weight: bold;
+        font-size: 36px;
+    }
+
+    ol li {
+        list-style: none;
+        color: #413F43;
+        font-size: 26px;
+        line-height: 40px;
+        position: relative;
+    }
+
+    ol li:hover {
+        background-color: #FCF6E5;
+    }
+
+    ol li:hover:after {
+        font-size: 20px;
+        border: 1px solid #AB3319;
+        border-radius: 5px;
+        content: attr(data);
+        position: absolute;
+        right: 0;
+        opacity: 1;
+        transition: all 0.2s ease-out;
+    }
+
+
+
+    </style>
+    <div class="title">工程师的五个级别</div>
+    <ol>
+        <li data="爱迪生、福特、贝尔、香农、理查德.斯托曼">
+            第一级:开创一个产业
+        </li>
+        <li data="迪恩，丹尼斯.里奇，肯·汤普逊">第二级: 能设计和实现别人不能做出的产品</li>
+        <li data="张小龙，阮一峰">第三级: 能独立设计和实现产品并且能在市场上获得成功</li>
+        <li data="项目主管">第四级: 能领导和带领其他人一同完成更有影响力的工作</li>
+        <li data="两年开发经验的工程师">第五级: 能独立解决问题, 完成工程工作</li>
+    </ol>
+</body>
+
+</html>
